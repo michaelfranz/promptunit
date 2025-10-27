@@ -1,0 +1,115 @@
+openapi: 3.1.0
+info:
+  title: Issue Management Tools
+  version: 1.0.0
+  description: Tool catalog for agentic use; one tool per operationId.
+paths:
+  /issues/{id}:
+    get:
+      operationId: GetIssue
+      summary: Fetch issue by id
+      description: Return details for a single issue.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Issue' }
+      x-risk-level: LOW
+      x-mutability: READONLY
+      x-reversibility: REVERSIBLE
+      x-duration: SHORT
+      x-blast-radius: SINGLE_RESOURCE
+      x-confirmation-required: false
+    delete:
+      operationId: DeleteIssue
+      summary: Delete issue
+      description: Permanently delete a single issue by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '204': { description: Deleted }
+      x-risk-level: DESTRUCTIVE
+      x-mutability: DELETE
+      x-reversibility: IRREVERSIBLE
+      x-duration: MEDIUM
+      x-blast-radius: SINGLE_RESOURCE
+      x-dry-run-available: true
+      x-confirmation-required: true
+  /issues:
+    post:
+      operationId: CreateIssue
+      summary: Create issue
+      description: Create a new issue.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateIssueRequest' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Issue' }
+      x-risk-level: MEDIUM
+      x-mutability: CREATE
+      x-reversibility: REVERSIBLE
+      x-duration: SHORT
+      x-blast-radius: SINGLE_RESOURCE
+      x-confirmation-required: false
+  /issues/{id}/labels:
+    post:
+      operationId: AddLabel
+      summary: Add label
+      description: Add a label to an issue.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label: { type: string, minLength: 1 }
+              required: [ label ]
+              additionalProperties: false
+      responses:
+        '200': { description: OK }
+      x-risk-level: HIGH
+      x-mutability: UPDATE
+      x-reversibility: REVERSIBLE
+      x-duration: SHORT
+      x-blast-radius: SINGLE_RESOURCE
+      x-confirmation-required: true
+components:
+  schemas:
+    Issue:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        projectKey: { type: string }
+        priority: { type: string, enum: [ low, medium, high ] }
+      required: [ id, title, projectKey ]
+      additionalProperties: false
+    CreateIssueRequest:
+      type: object
+      properties:
+        projectKey: { type: string, minLength: 1 }
+        title: { type: string, minLength: 1 }
+        priority: { type: string, enum: [ low, medium, high ] }
+      required: [ projectKey, title ]
+      additionalProperties: false

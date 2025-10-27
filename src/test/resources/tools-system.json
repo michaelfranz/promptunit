@@ -1,0 +1,52 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "ShowMessage",
+        "description": "Display a user-facing message.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string", "minLength": 1 },
+            "severity": { "type": "string", "enum": ["info", "warning", "error"] }
+          },
+          "required": ["message"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "AskForClarification",
+        "description": "Ask user for missing fields required to proceed.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "question": { "type": "string", "minLength": 1 },
+            "fields": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+          },
+          "required": ["question", "fields"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "RefuseWithReason",
+        "description": "Politely refuse with a structured reason.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reason": { "type": "string", "minLength": 1 },
+            "category": { "type": "string", "enum": ["unsupported", "safety", "policy", "ambiguous"] }
+          },
+          "required": ["reason"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

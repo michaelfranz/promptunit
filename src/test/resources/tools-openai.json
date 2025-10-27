@@ -1,0 +1,144 @@
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "GetIssue",
+        "description": "Fetch issue by id.",
+        "parameters": {
+          "type": "object",
+          "properties": { "id": { "type": "integer", "minimum": 1 } },
+          "required": ["id"],
+          "additionalProperties": false
+        },
+        "x-risk": {
+          "level": "LOW",
+          "mutability": "READONLY",
+          "reversibility": "REVERSIBLE",
+          "duration": "SHORT",
+          "blastRadius": "SINGLE_RESOURCE",
+          "confirmationRequired": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "CreateIssue",
+        "description": "Create a new issue.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "projectKey": { "type": "string", "minLength": 1 },
+            "title": { "type": "string", "minLength": 1 },
+            "priority": { "type": "string", "enum": ["low", "medium", "high"] }
+          },
+          "required": ["projectKey", "title"],
+          "additionalProperties": false
+        },
+        "x-risk": {
+          "level": "MEDIUM",
+          "mutability": "CREATE",
+          "reversibility": "REVERSIBLE",
+          "duration": "SHORT",
+          "blastRadius": "SINGLE_RESOURCE",
+          "confirmationRequired": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "AddLabel",
+        "description": "Add a label to an issue.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "integer", "minimum": 1 },
+            "label": { "type": "string", "minLength": 1 }
+          },
+          "required": ["id", "label"],
+          "additionalProperties": false
+        },
+        "x-risk": {
+          "level": "HIGH",
+          "mutability": "UPDATE",
+          "reversibility": "REVERSIBLE",
+          "duration": "SHORT",
+          "blastRadius": "SINGLE_RESOURCE",
+          "confirmationRequired": true
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "DeleteIssue",
+        "description": "Permanently delete an issue by id.",
+        "parameters": {
+          "type": "object",
+          "properties": { "id": { "type": "integer", "minimum": 1 } },
+          "required": ["id"],
+          "additionalProperties": false
+        },
+        "x-risk": {
+          "level": "DESTRUCTIVE",
+          "mutability": "DELETE",
+          "reversibility": "IRREVERSIBLE",
+          "duration": "MEDIUM",
+          "blastRadius": "SINGLE_RESOURCE",
+          "dryRunAvailable": true,
+          "confirmationRequired": true
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "ShowMessage",
+        "description": "Display a user-facing message.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string", "minLength": 1 },
+            "severity": { "type": "string", "enum": ["info", "warning", "error"] }
+          },
+          "required": ["message"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "AskForClarification",
+        "description": "Ask user for missing fields required to proceed.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "question": { "type": "string", "minLength": 1 },
+            "fields": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+          },
+          "required": ["question", "fields"],
+          "additionalProperties": false
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "RefuseWithReason",
+        "description": "Politely refuse with a structured reason.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "reason": { "type": "string", "minLength": 1 },
+            "category": { "type": "string", "enum": ["unsupported", "safety", "policy", "ambiguous"] }
+          },
+          "required": ["reason"],
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}
