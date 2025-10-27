@@ -15,7 +15,7 @@ public final class GetUserConfirmationCommand extends AbstractCommand {
     private final String prompt;
 
     public GetUserConfirmationCommand(String ticketId, String prompt) {
-        super(CommandPriority.MEDIUM, Optional.ofNullable(ticketId));
+        super(CommandPriority.MEDIUM, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.prompt = Objects.requireNonNull(prompt, "prompt");
     }

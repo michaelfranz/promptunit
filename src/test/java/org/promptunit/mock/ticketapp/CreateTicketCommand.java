@@ -12,7 +12,7 @@ public final class CreateTicketCommand extends AbstractCommand {
     private final String description;
 
     public CreateTicketCommand(String projectKey, String summary, String description, CommandPriority priority) {
-        super(priority, Optional.ofNullable(projectKey));
+        super(priority, projectKey);
         this.projectKey = Objects.requireNonNull(projectKey, "projectKey");
         this.summary = Objects.requireNonNull(summary, "summary");
         this.description = Objects.requireNonNull(description, "description");

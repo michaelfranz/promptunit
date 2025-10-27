@@ -11,7 +11,7 @@ public final class AddCommentCommand extends AbstractCommand {
     private final String comment;
 
     public AddCommentCommand(String ticketId, String comment, CommandPriority priority) {
-        super(priority, Optional.ofNullable(ticketId));
+        super(priority, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.comment = Objects.requireNonNull(comment, "comment");
     }

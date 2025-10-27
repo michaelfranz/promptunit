@@ -19,8 +19,6 @@ In addition to single-call assertions, PromptUnit includes early-stage support f
 
 Prerequisites: Java 21+, internet access for dependency resolution, and optionally provider API keys.
 
-If working with LLM providers such as OpenAI, Anthropic etc., copy the file .env.example to .env and fill in the required values.
-
 Build the project:
 
 ```bash
@@ -35,7 +33,7 @@ Run tests (integration tests are skipped unless API keys are present):
 
 FInd simple examples in the folder `src/test/java/org/promptunit/examples`.
 
-To enable integration tests, set provider environment variables before running:
+To enable integration tests, set provider environment variables before running. Alternatively, copy the file .env.example to .env and fill in the required values.
 
 ```bash
 export OPENAI_API_KEY=...       # for OpenAI tests

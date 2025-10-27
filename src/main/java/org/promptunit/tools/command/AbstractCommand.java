@@ -1,5 +1,6 @@
 package org.promptunit.tools.command;
 
+import static java.util.Optional.ofNullable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,18 +15,18 @@ import java.util.UUID;
 public abstract class AbstractCommand implements Command {
     private final String id;
     private final CommandPriority priority;
-    private final Optional<String> affinityKey;
+    private final String affinityKey;
     private volatile CommandStatus status = CommandStatus.PENDING;
     private volatile boolean cancelRequested = false;
 
-    protected AbstractCommand(CommandPriority priority, Optional<String> affinityKey) {
+    protected AbstractCommand(CommandPriority priority, String affinityKey) {
         this(UUID.randomUUID().toString(), priority, affinityKey);
     }
 
-    protected AbstractCommand(String id, CommandPriority priority, Optional<String> affinityKey) {
+    protected AbstractCommand(String id, CommandPriority priority, String affinityKey) {
         this.id = Objects.requireNonNull(id, "id");
         this.priority = Objects.requireNonNull(priority, "priority");
-        this.affinityKey = affinityKey == null ? Optional.empty() : affinityKey;
+        this.affinityKey = affinityKey;
     }
 
     @Override
@@ -40,7 +41,7 @@ public abstract class AbstractCommand implements Command {
 
     @Override
     public Optional<String> getAffinityKey() {
-        return affinityKey;
+        return ofNullable(affinityKey);
     }
 
     @Override
@@ -48,7 +49,7 @@ public abstract class AbstractCommand implements Command {
         // Priority is intentionally excluded from the fingerprint so that two commands
         // with identical semantic content but different priorities are considered duplicates
         // for the successive dedupe rule (the higher priority wins).
-        String content = getName() + "|" + affinityKey.orElse("") + "|" + fingerprintPayload();
+        String content = getName() + "|" + ofNullable(affinityKey).orElse("") + "|" + fingerprintPayload();
         return sha256(content);
     }
 

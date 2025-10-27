@@ -24,8 +24,8 @@ public final class ToolToCommandDispatcher {
     public DispatchResult dispatch(List<ToolInvocation> invocations, CommandQueue queue, CommandMappingPolicy policy) {
         DispatchResult result = new DispatchResult();
         for (ToolInvocation inv : invocations) {
-            String toolId = inv.getTool();
-            Optional<String> toolVersion = inv.getToolVersion();
+            String toolId = inv.tool();
+			String toolVersion = inv.getToolVersion().orElse(null);
             ToolCommandFactory factory = registry.findFactory(provider, model, toolId, toolVersion)
                     .orElseThrow(() -> new AssertionError("No ToolCommandFactory for provider=" + provider + ", model=" + model + ", tool=" + toolId));
 

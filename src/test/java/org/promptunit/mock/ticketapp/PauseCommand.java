@@ -14,7 +14,7 @@ public final class PauseCommand extends AbstractCommand {
     private final String reason;
 
     public PauseCommand(String ticketId, String reason) {
-        super(CommandPriority.HIGH, Optional.ofNullable(ticketId));
+        super(CommandPriority.HIGH, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.reason = Objects.requireNonNull(reason, "reason");
     }

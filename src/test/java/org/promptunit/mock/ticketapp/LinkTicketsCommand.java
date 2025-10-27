@@ -12,7 +12,7 @@ public final class LinkTicketsCommand extends AbstractCommand {
     private final String linkType;
 
     public LinkTicketsCommand(String inwardTicketId, String outwardTicketId, String linkType, CommandPriority priority) {
-        super(priority, Optional.of("link:" + Objects.requireNonNull(inwardTicketId) + ":" + Objects.requireNonNull(outwardTicketId)));
+        super(priority, "link:" + Objects.requireNonNull(inwardTicketId) + ":" + Objects.requireNonNull(outwardTicketId));
         this.inwardTicketId = inwardTicketId;
         this.outwardTicketId = Objects.requireNonNull(outwardTicketId, "outwardTicketId");
         this.linkType = Objects.requireNonNull(linkType, "linkType");

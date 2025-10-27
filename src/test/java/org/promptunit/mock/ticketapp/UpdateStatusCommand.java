@@ -11,7 +11,7 @@ public final class UpdateStatusCommand extends AbstractCommand {
     private final String status;
 
     public UpdateStatusCommand(String ticketId, String status, CommandPriority priority) {
-        super(priority, Optional.ofNullable(ticketId));
+        super(priority, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.status = Objects.requireNonNull(status, "status");
     }

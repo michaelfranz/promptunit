@@ -14,7 +14,7 @@ public final class CancelCommand extends AbstractCommand {
     private final String reason;
 
     public CancelCommand(String ticketId, String reason) {
-        super(CommandPriority.HIGHEST, Optional.ofNullable(ticketId));
+        super(CommandPriority.HIGHEST, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.reason = Objects.requireNonNull(reason, "reason");
     }

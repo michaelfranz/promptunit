@@ -11,7 +11,7 @@ public final class AssignUserCommand extends AbstractCommand {
     private final String userId;
 
     public AssignUserCommand(String ticketId, String userId, CommandPriority priority) {
-        super(priority, Optional.ofNullable(ticketId));
+        super(priority, ticketId);
         this.ticketId = Objects.requireNonNull(ticketId, "ticketId");
         this.userId = Objects.requireNonNull(userId, "userId");
     }

@@ -15,7 +15,6 @@ import org.promptunit.tools.command.factory.ToolCommandFactoryRegistry;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -23,37 +22,37 @@ class ToolCommandFactoryRegistryVersioningTest {
 
     static class VersionedFactoryV1 implements ToolCommandFactory {
         @Override
-        public boolean supports(String provider, String model, String toolId, Optional<String> toolVersion) {
+        public boolean supports(String provider, String model, String toolId, String toolVersion) {
             return "OpenAI".equals(provider)
                     && "gpt-4o".equals(model)
                     && "create_ticket".equals(toolId)
-                    && toolVersion.isPresent() && toolVersion.get().equals("v1");
+                    && toolVersion != null && toolVersion.equals("v1");
         }
 
         @Override
-        public List<Command> create(String provider, String model, String toolId, Optional<String> toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
+        public List<Command> create(String provider, String model, String toolId, String toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
             throw new UnsupportedOperationException("v1");
         }
     }
 
     static class VersionedFactoryV2 implements ToolCommandFactory {
         @Override
-        public boolean supports(String provider, String model, String toolId, Optional<String> toolVersion) {
+        public boolean supports(String provider, String model, String toolId, String toolVersion) {
             return "OpenAI".equals(provider)
                     && "gpt-4o".equals(model)
                     && "create_ticket".equals(toolId)
-                    && toolVersion.isPresent() && toolVersion.get().equals("v2");
+                    && toolVersion != null && toolVersion.equals("v1");
         }
 
         @Override
-        public List<Command> create(String provider, String model, String toolId, Optional<String> toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
+        public List<Command> create(String provider, String model, String toolId, String toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
             throw new UnsupportedOperationException("v2");
         }
     }
 
     static class NoVersionFactory implements ToolCommandFactory {
         @Override
-        public boolean supports(String provider, String model, String toolId, Optional<String> toolVersion) {
+        public boolean supports(String provider, String model, String toolId, String toolVersion) {
             return "OpenAI".equals(provider)
                     && "gpt-4o".equals(model)
                     && "create_ticket".equals(toolId)
@@ -61,7 +60,7 @@ class ToolCommandFactoryRegistryVersioningTest {
         }
 
         @Override
-        public List<Command> create(String provider, String model, String toolId, Optional<String> toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
+        public List<Command> create(String provider, String model, String toolId, String toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
             throw new UnsupportedOperationException("noversion");
         }
     }

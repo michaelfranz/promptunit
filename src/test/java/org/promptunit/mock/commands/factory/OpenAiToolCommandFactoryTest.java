@@ -23,15 +23,15 @@ class OpenAiToolCommandFactoryTest {
 
     static class OpenAiCreateTicketFactory implements ToolCommandFactory {
         @Override
-        public boolean supports(String provider, String model, String toolId, Optional<String> toolVersion) {
+        public boolean supports(String provider, String model, String toolId, String toolVersion) {
             return "OpenAI".equals(provider) && "create_ticket".equals(toolId);
         }
 
         @Override
-        public List<org.promptunit.tools.command.Command> create(String provider, String model, String toolId, Optional<String> toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
+        public List<org.promptunit.tools.command.Command> create(String provider, String model, String toolId, String toolVersion, ToolInvocation invocation, CommandMappingPolicy policy) {
             CommandPriority prio = policy.resolvePriority(invocation);
             Optional<String> affinity = policy.resolveAffinity(invocation);
-            ObjectNode args = (ObjectNode) invocation.getArgs();
+            ObjectNode args = (ObjectNode) invocation.args();
             String projectKey = args.get("projectKey").asText();
             String summary = args.get("summary").asText();
             String description = args.get("description").asText();
