@@ -208,11 +208,19 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert confirmsToGuardrail(GuardrailRule rule) {
+	public PromptAssert conformsToGuardrail(GuardrailRule rule) {
 		GuardrailResult guardrailResult = rule.evaluate(result);
 		if (!guardrailResult.passed())
 			throw new AssertionError("Expected raw output to conform to guardrail %s: %s"
 					.formatted(rule.getName(), guardrailResult.failReason()));
+		return this;
+	}
+
+	public PromptAssert violatesToGuardrail(GuardrailRule rule) {
+		GuardrailResult guardrailResult = rule.evaluate(result);
+		if (guardrailResult.passed())
+			throw new AssertionError("Expected raw output to violate guardrail %s"
+					.formatted(rule.getName()));
 		return this;
 	}
 

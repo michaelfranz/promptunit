@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.promptunit.LLMEngine;
+import org.promptunit.MockLLMEngine;
 import org.promptunit.ModerationService;
 import org.promptunit.core.OutputSchema;
 import org.promptunit.core.PromptInstance;
@@ -77,7 +78,7 @@ class OpenAIExamplesIT {
 			PromptAssertions.usingEngine(engine)
 					.withInstance(offensivePromptInstance)
 					.execute()
-					.confirmsToGuardrail(new ContentModerationGuardrail(moderationService, 0.7f));
+					.conformsToGuardrail(new ContentModerationGuardrail(moderationService, 0.7f));
 		}
 
 		@Test
@@ -90,7 +91,21 @@ class OpenAIExamplesIT {
 			PromptAssertions.usingEngine(engine)
 					.withInstance(inoffensivePromptInstance)
 					.execute()
-					.confirmsToGuardrail(new ContentModerationGuardrail(moderationService, 0.1f));
+					.conformsToGuardrail(new ContentModerationGuardrail(moderationService, 0.7f));
+		}
+
+		@Test
+		void testGuardrailViolation() {
+			// Need to use a mock engine here because OpenAI LLM models are too nice
+			LLMEngine engine = new MockLLMEngine("Kill them all!");
+			PromptInstance nastyPrompt = PromptInstance.builder()
+					.withSystemMessage("You are an agitator")
+					.withUserMessage("Kill them all")
+					.build();
+			PromptAssertions.usingEngine(engine)
+					.withInstance(nastyPrompt)
+					.execute()
+					.violatesToGuardrail(new ContentModerationGuardrail(moderationService, 0.5f));
 		}
 	}
 

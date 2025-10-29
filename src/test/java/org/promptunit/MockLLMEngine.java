@@ -5,6 +5,19 @@ import org.promptunit.core.PromptResult;
 
 public class MockLLMEngine implements LLMEngine, LLMEngineInfo {
 
+	public static final String DEFAULT_MOCK_OUTPUT = """
+			{ "summary": "Mock review output", "suggestions": ["Use better names"], "scorecard": {} }""";
+
+	private final String mockOutput;
+
+	public MockLLMEngine() {
+		this(DEFAULT_MOCK_OUTPUT);
+	}
+
+	public MockLLMEngine(String mockOutput) {
+		this.mockOutput = mockOutput;
+	}
+
 	@Override
 	public String provider() {
 		return "mock-llm-provider";
@@ -23,8 +36,7 @@ public class MockLLMEngine implements LLMEngine, LLMEngineInfo {
 	@Override
 	public PromptResult invokeOnce(PromptInstance instance, long timeoutMs) {
 		return new PromptResult(
-				"""
-						{ "summary": "Mock review output", "suggestions": ["Use better names"], "scorecard": {} }""",
+				mockOutput,
 				50,
 				0.0,
 				100,

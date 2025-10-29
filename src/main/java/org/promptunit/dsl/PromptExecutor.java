@@ -30,4 +30,5 @@ public final class PromptExecutor {
 		PromptResult result = engine.execute(instance, timeoutMs);
 		return new PromptAssert(result);
 	}
+
 }

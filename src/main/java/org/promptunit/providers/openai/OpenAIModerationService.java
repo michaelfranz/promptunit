@@ -31,16 +31,18 @@ public class OpenAIModerationService implements ModerationService {
                     .POST(HttpRequest.BodyPublishers.ofString(requestJson, StandardCharsets.UTF_8))
                     .build();
 
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response;
+			try (HttpClient client = HttpClient.newHttpClient()) {
+				response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			}
 
-            if (response.statusCode() / 100 != 2) {
+			if (response.statusCode() / 100 != 2) {
                 throw new LLMInvocationException("OpenAI moderation returned status " + response.statusCode() + ": " + response.body());
             }
 
             JsonNode root = new ObjectMapper().readTree(response.body());
             // Response shape: { results: [ { flagged: bool, categories: {...}, category_scores: {...} } ] }
-            JsonNode first = root.path("results").isArray() && root.path("results").size() > 0
+            JsonNode first = root.path("results").isArray() && !root.path("results").isEmpty()
                     ? root.path("results").get(0)
                     : null;
             if (first == null || first.isNull()) {
