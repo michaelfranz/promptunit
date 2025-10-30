@@ -2,7 +2,7 @@
 
 **Mission**
 
-PromptUnit provides a simple, extensible framework for testing LLM prompts by making clear, readable assertions against model responses. The goal is to bring unit-test-like confidence to prompts: validate structure, content, and budgets (latency, tokens, cost), and catch regressions early.
+PromptUnit provides a simple, extensible framework for testing LLM prompts by making clear, readable assertions against model prompts and responses. The goal is to bring unit-test-like confidence to prompts: validate structure, content, and budgets (latency, tokens, cost), and catch regressions early.
 
 In addition to single-call assertions, PromptUnit includes early-stage support for testing agentic flows. These tests express the expected interactions and outcomes across tool-augmented or multi-step chains where LLM outputs influence subsequent steps.
 
