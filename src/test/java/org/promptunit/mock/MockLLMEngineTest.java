@@ -13,8 +13,8 @@ class MockLLMEngineTest {
 	void returnsDeterministicMockOutput() {
 		MockLLMEngine engine = new MockLLMEngine();
 		PromptInstance instance = PromptInstance.builder()
-				.withSystemMessage("You are a code reviewer")
-				.withUserMessage("Review this code")
+				.addSystemMessage("You are a code reviewer")
+				.addUserMessage("Review this code")
 				.withModel("ChatGPT-3.5")
 				.withProvider("OpenAI")
 				.build();

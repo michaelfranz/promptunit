@@ -1,10 +1,9 @@
 package org.promptunit.tools.command.factory;
 
+import java.util.List;
 import org.promptunit.tools.catalog.ToolInvocation;
 import org.promptunit.tools.command.Command;
 import org.promptunit.tools.command.dispatch.CommandMappingPolicy;
-
-import java.util.List;
 
 public interface ToolCommandFactory {
 

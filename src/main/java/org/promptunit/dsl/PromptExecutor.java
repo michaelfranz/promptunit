@@ -25,10 +25,10 @@ public final class PromptExecutor {
 		return this;
 	}
 
-	public PromptAssert execute() {
+	public PromptResultAssert execute() {
 		if (instance == null) throw new IllegalStateException("PromptInstance not set. Call withInstance(...) first.");
 		PromptResult result = engine.execute(instance, timeoutMs);
-		return new PromptAssert(result);
+		return new PromptResultAssert(result);
 	}
 
 }

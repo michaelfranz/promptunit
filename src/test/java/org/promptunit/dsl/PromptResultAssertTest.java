@@ -16,7 +16,7 @@ import org.promptunit.core.PromptResult;
 import org.promptunit.providers.openai.OpenAIEngine;
 
 
-class PromptAssertTest {
+class PromptResultAssertTest {
 
 	private PromptResult validJsonResult;
 	private PromptResult invalidJsonResult;
@@ -65,23 +65,23 @@ class PromptAssertTest {
 	class HasValidSchemaTests {
 		@Test
 		void shouldPassWhenOutputIsValidJson() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(assert_::containsValidJson)
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenOutputIsInvalidJson() {
-			PromptAssert assert_ = assertThatResult(invalidJsonResult);
+			PromptResultAssert assert_ = assertThatResult(invalidJsonResult);
 			assertThatThrownBy(assert_::containsValidJson)
 					.isInstanceOf(AssertionError.class)
-					.hasMessageContaining("Expected raw output to be valid JSON");
+					.hasMessageContaining("Expected raw output to contain valid JSON content");
 		}
 
 		@Test
 		void shouldSupportFluencyAfterValidation() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.containsValidJson();
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.containsValidJson();
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -90,28 +90,28 @@ class PromptAssertTest {
 	class JsonPathExistsTests {
 		@Test
 		void shouldPassWhenPathExists() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.jsonPathExists("$.summary"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenNestedPathExists() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.jsonPathExists("$.scorecard.quality"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenArrayPathExists() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.jsonPathExists("$.suggestions[0]"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenPathDoesNotExist() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.jsonPathExists("$.nonexistent"))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected raw output to contain node at path");
@@ -119,21 +119,21 @@ class PromptAssertTest {
 
 		@Test
 		void shouldThrowWhenValidatingPathInInvalidJson() {
-			PromptAssert assert_ = assertThatResult(invalidJsonResult);
+			PromptResultAssert assert_ = assertThatResult(invalidJsonResult);
 			assertThatThrownBy(() -> assert_.jsonPathExists("$.any"))
 					.isInstanceOf(AssertionError.class);
 		}
 
 		@Test
 		void shouldSupportFluencyAfterPathCheck() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.jsonPathExists("$.summary");
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.jsonPathExists("$.summary");
 			assertThat(result).isSameAs(assert_);
 		}
 
 		@Test
 		void shouldWorkWithComplexNestedPaths() {
-			PromptAssert assert_ = assertThatResult(complexJsonResult);
+			PromptResultAssert assert_ = assertThatResult(complexJsonResult);
 			assertThatCode(() -> assert_.jsonPathExists("$.data.users[0].name"))
 					.doesNotThrowAnyException();
 		}
@@ -180,14 +180,14 @@ class PromptAssertTest {
 
 		@Test
 		void shouldPassWhenJsonConformsToSchema() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.conformsToSchema(simpleSchema))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWithAdvancedSchema() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.conformsToSchema(advancedSchema))
 					.doesNotThrowAnyException();
 		}
@@ -204,7 +204,7 @@ class PromptAssertTest {
 					0.5,
 					150
 			);
-			PromptAssert assert_ = assertThatResult(missingRequired);
+			PromptResultAssert assert_ = assertThatResult(missingRequired);
 			assertThatThrownBy(() -> assert_.conformsToSchema(simpleSchema))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected raw output to conform to JSON schema");
@@ -223,7 +223,7 @@ class PromptAssertTest {
 					0.5,
 					150
 			);
-			PromptAssert assert_ = assertThatResult(wrongType);
+			PromptResultAssert assert_ = assertThatResult(wrongType);
 			assertThatThrownBy(() -> assert_.conformsToSchema(simpleSchema))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected raw output to conform to JSON schema");
@@ -231,14 +231,14 @@ class PromptAssertTest {
 
 		@Test
 		void shouldSupportFluencyAfterSchemaValidation() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.conformsToSchema(simpleSchema);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.conformsToSchema(simpleSchema);
 			assertThat(result).isSameAs(assert_);
 		}
 
 		@Test
 		void shouldThrowWhenSchemaIsInvalid() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.conformsToSchema("invalid schema"))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessageContaining("Invalid JSON schema provided");
@@ -247,13 +247,13 @@ class PromptAssertTest {
 		@Test
 		void shouldDistinguishBetweenInvalidSchemaAndValidationFailure() {
 			// Invalid schema → IllegalArgumentException (bad argument)
-			PromptAssert assert1 = assertThatResult(validJsonResult);
+			PromptResultAssert assert1 = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert1.conformsToSchema("{invalid"))
 					.isInstanceOf(IllegalArgumentException.class);
 
 			// Valid schema but output doesn't conform → AssertionError (assertion failure)
 			PromptResult nonConformingOutput = new PromptResult("{}", 10, 0.0, 0);
-			PromptAssert assert2 = assertThatResult(nonConformingOutput);
+			PromptResultAssert assert2 = assertThatResult(nonConformingOutput);
 			String schemaRequiringField = """
 					{
 						"type": "object",
@@ -268,21 +268,21 @@ class PromptAssertTest {
 	class ContainsTests {
 		@Test
 		void shouldPassWhenSubstringExists() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.contains("Test review"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenPartialSubstringExists() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.contains("review"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenSubstringDoesNotExist() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.contains("nonexistent"))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected raw output to contain");
@@ -290,15 +290,15 @@ class PromptAssertTest {
 
 		@Test
 		void shouldBeCaseSensitive() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.contains("test review"))
 					.isInstanceOf(AssertionError.class);
 		}
 
 		@Test
 		void shouldSupportFluencyAfterContains() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.contains("Test review");
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.contains("Test review");
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -307,21 +307,21 @@ class PromptAssertTest {
 	class ContainsCaseInsensitiveTests {
 		@Test
 		void shouldPassWhenSubstringExistsWithDifferentCase() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.containsCaseInsensitive("TEST REVIEW"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenSubstringExistsWithSameCase() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.containsCaseInsensitive("test review"))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenSubstringDoesNotExist() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.containsCaseInsensitive("NONEXISTENT"))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected raw output to contain");
@@ -329,8 +329,8 @@ class PromptAssertTest {
 
 		@Test
 		void shouldSupportFluencyAfterContainsCaseInsensitive() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.containsCaseInsensitive("test review");
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.containsCaseInsensitive("test review");
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -339,21 +339,21 @@ class PromptAssertTest {
 	class LatencyBelowTests {
 		@Test
 		void shouldPassWhenLatencyIsBelow() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.latencyBelow(100))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenLatencyEqualsThreshold() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.latencyBelow(50))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenLatencyExceeds() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.latencyBelow(30))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected latency < 30ms")
@@ -362,8 +362,8 @@ class PromptAssertTest {
 
 		@Test
 		void shouldSupportFluencyAfterLatencyCheck() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.latencyBelow(100);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.latencyBelow(100);
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -372,21 +372,21 @@ class PromptAssertTest {
 	class TokenUsageBelowTests {
 		@Test
 		void shouldPassWhenTokenUsageIsBelow() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.tokenUsageBelow(200))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenTokenUsageEqualsThreshold() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.tokenUsageBelow(150))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenTokenUsageExceeds() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.tokenUsageBelow(100))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected token usage < 100")
@@ -395,8 +395,8 @@ class PromptAssertTest {
 
 		@Test
 		void shouldSupportFluencyAfterTokenUsageCheck() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.tokenUsageBelow(200);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.tokenUsageBelow(200);
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -405,21 +405,21 @@ class PromptAssertTest {
 	class CostBelowTests {
 		@Test
 		void shouldPassWhenCostIsBelow() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.costBelow(1.0))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldPassWhenCostEqualsThreshold() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.costBelow(0.5))
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldThrowWhenCostExceeds() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() -> assert_.costBelow(0.3))
 					.isInstanceOf(AssertionError.class)
 					.hasMessageContaining("Expected cost usage < 0.3")
@@ -428,8 +428,8 @@ class PromptAssertTest {
 
 		@Test
 		void shouldSupportFluencyAfterCostCheck() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
-			PromptAssert result = assert_.costBelow(1.0);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert result = assert_.costBelow(1.0);
 			assertThat(result).isSameAs(assert_);
 		}
 	}
@@ -438,7 +438,7 @@ class PromptAssertTest {
 	class FluentChainTests {
 		@Test
 		void shouldSupportChainOfMultipleAssertions() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() ->
 					assert_.containsValidJson()
 							.contains("Test review")
@@ -458,7 +458,7 @@ class PromptAssertTest {
 						},
 						"required": ["summary"]
 					}""";
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() ->
 					assert_.containsValidJson()
 							.jsonPathExists("$.summary")
@@ -469,7 +469,7 @@ class PromptAssertTest {
 
 		@Test
 		void shouldFailChainAtFirstFailure() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatThrownBy(() ->
 					assert_.containsValidJson()
 							.contains("nonexistent")
@@ -483,7 +483,7 @@ class PromptAssertTest {
 		@Test
 		void shouldHandleEmptyJsonObject() {
 			PromptResult emptyJson = new PromptResult("{}", 10, 0.0, 0);
-			PromptAssert assert_ = assertThatResult(emptyJson);
+			PromptResultAssert assert_ = assertThatResult(emptyJson);
 			assertThatCode(assert_::containsValidJson)
 					.doesNotThrowAnyException();
 		}
@@ -491,7 +491,7 @@ class PromptAssertTest {
 		@Test
 		void shouldHandleEmptyJsonArray() {
 			PromptResult emptyArray = new PromptResult("[]", 10, 0.0, 0);
-			PromptAssert assert_ = assertThatResult(emptyArray);
+			PromptResultAssert assert_ = assertThatResult(emptyArray);
 			assertThatCode(assert_::containsValidJson)
 					.doesNotThrowAnyException();
 		}
@@ -508,14 +508,14 @@ class PromptAssertTest {
 					0.0,
 					50
 			);
-			PromptAssert assert_ = assertThatResult(special);
+			PromptResultAssert assert_ = assertThatResult(special);
 			assertThatCode(assert_::containsValidJson)
 					.doesNotThrowAnyException();
 		}
 
 		@Test
 		void shouldHandleVeryLargeNumbers() {
-			PromptAssert assert_ = assertThatResult(validJsonResult);
+			PromptResultAssert assert_ = assertThatResult(validJsonResult);
 			assertThatCode(() -> assert_.latencyBelow(Long.MAX_VALUE))
 					.doesNotThrowAnyException();
 		}
@@ -523,7 +523,7 @@ class PromptAssertTest {
 		@Test
 		void shouldHandleZeroMetrics() {
 			PromptResult zero = new PromptResult("{}", 0, 0.0, 0);
-			PromptAssert assert_ = assertThatResult(zero);
+			PromptResultAssert assert_ = assertThatResult(zero);
 			assertThatCode(() ->
 					assert_.containsValidJson()
 							.latencyBelow(1)
@@ -565,8 +565,8 @@ class PromptAssertTest {
 
 			OpenAIEngine engine = new OpenAIEngine("gpt-4o-mini");
 			PromptInstance instance = PromptInstance.builder()
-					.withSystemMessage("You are a helpful assistant. Return only JSON.")
-					.withUserMessage("Return a JSON object with a 'people' array of three records named Tom, Dick, and Harry.")
+					.addSystemMessage("You are a helpful assistant. Return only JSON.")
+					.addUserMessage("Return a JSON object with a 'people' array of three records named Tom, Dick, and Harry.")
 					.withOutputSchema(new OutputSchema(peopleSchema))
 					.build();
 
@@ -618,7 +618,7 @@ class PromptAssertTest {
 					10
 			);
 
-			PromptAssert pa = assertThatResult(data);
+			PromptResultAssert pa = assertThatResult(data);
 			String compact = pa.jsonString();
 			String formatted = pa.jsonString(true);
 

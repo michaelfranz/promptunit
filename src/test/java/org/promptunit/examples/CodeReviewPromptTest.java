@@ -12,8 +12,8 @@ class CodeReviewPromptTest {
 	void testMockLLMOutput() {
 		LLMEngine engine = new MockLLMEngine();
 		PromptInstance mockInstance = PromptInstance.builder()
-				.withSystemMessage("You are a Java code reviewer")
-				.withUserMessage("Critique the design of Java's java.lang.Boolean class.")
+				.addSystemMessage("You are a Java code reviewer")
+				.addUserMessage("Critique the design of Java's java.lang.Boolean class.")
 				.withModel("ChatGPT-3.5")
 				.withProvider("OpenAI")
 				.build();

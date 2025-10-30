@@ -1,14 +1,12 @@
 package org.promptunit.tools.command.dispatch;
 
+import java.util.List;
 import org.promptunit.tools.catalog.ToolInvocation;
 import org.promptunit.tools.command.Command;
 import org.promptunit.tools.command.CommandQueue;
 import org.promptunit.tools.command.EnqueueResult;
 import org.promptunit.tools.command.factory.ToolCommandFactory;
 import org.promptunit.tools.command.factory.ToolCommandFactoryRegistry;
-
-import java.util.List;
-import java.util.Optional;
 
 public final class ToolToCommandDispatcher {
     private final ToolCommandFactoryRegistry registry;

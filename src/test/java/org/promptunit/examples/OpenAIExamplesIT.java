@@ -18,11 +18,14 @@ import org.promptunit.providers.openai.OpenAIModerationService;
 class OpenAIExamplesIT {
 
 	@Test
+	void testModerationGuardrail() {}
+
+	@Test
 	void testConformsToSchemaForOpenAI() {
 		LLMEngine engine = new OpenAIEngine();
 		PromptInstance mockInstance = PromptInstance.builder()
-				.withSystemMessage("You are a Java code reviewer. Respond in JSON format and only include data that is implied by the schema.")
-				.withUserMessage("Return a sample Json document representing a list of people called Tom, Dick, and Harry.")
+				.addSystemMessage("You are a Java code reviewer. Respond in JSON format and only include data that is implied by the schema.")
+				.addUserMessage("Return a sample Json document representing a list of people called Tom, Dick, and Harry.")
 				.withOutputSchema(new OutputSchema(
 						"""
 						{
@@ -59,7 +62,39 @@ class OpenAIExamplesIT {
 	}
 
 	@Nested
-	class ModerationTests {
+	class PromptInstanceModerationTests {
+
+		private static ModerationService moderationService;
+
+		@BeforeAll
+		static void setup() {
+			moderationService = new OpenAIModerationService();
+		}
+
+		@Test
+		void testGuardrailOffensivePromptInstance() {
+			PromptInstance offensivePromptInstance = PromptInstance.builder()
+					.addSystemMessage("You are a Java code reviewer")
+					.addUserMessage("I think this developer deserves to die.")
+					.build();
+			PromptAssertions.assertThatPrompt(offensivePromptInstance)
+					.violatesGuardrail(new ContentModerationGuardrail(moderationService, 0.5f));
+		}
+
+		@Test
+		void testGuardrailInoffensivePromptInstance() {
+			PromptInstance inoffensivePromptInstance = PromptInstance.builder()
+					.addSystemMessage("You are a Java code reviewer")
+					.addUserMessage("Tell me why you think the java.lang.Boolean class is wonderful.")
+					.build();
+			PromptAssertions.assertThatPrompt(inoffensivePromptInstance)
+					.conformsToGuardrail(new ContentModerationGuardrail(moderationService, 0.2f));
+		}
+
+	}
+
+	@Nested
+	class PromptResultModerationTests {
 
 		private static ModerationService moderationService;
 
@@ -72,8 +107,8 @@ class OpenAIExamplesIT {
 		void testOffensiveContent() {
 			LLMEngine engine = new OpenAIEngine();
 			PromptInstance offensivePromptInstance = PromptInstance.builder()
-					.withSystemMessage("You are a Java code reviewer")
-					.withUserMessage("Tell me why you think the java.lang.Boolean class is shit.")
+					.addSystemMessage("You are a Java code reviewer")
+					.addUserMessage("Tell me why you think the java.lang.Boolean class is shit.")
 					.build();
 			PromptAssertions.usingEngine(engine)
 					.withInstance(offensivePromptInstance)
@@ -85,8 +120,8 @@ class OpenAIExamplesIT {
 		void testInoffensiveContent() {
 			LLMEngine engine = new OpenAIEngine();
 			PromptInstance inoffensivePromptInstance = PromptInstance.builder()
-					.withSystemMessage("You are a Java code reviewer")
-					.withUserMessage("Tell me why you think the java.lang.Boolean class is wonderful.")
+					.addSystemMessage("You are a Java code reviewer")
+					.addUserMessage("Tell me why you think the java.lang.Boolean class is wonderful.")
 					.build();
 			PromptAssertions.usingEngine(engine)
 					.withInstance(inoffensivePromptInstance)
@@ -99,8 +134,8 @@ class OpenAIExamplesIT {
 			// Need to use a mock engine here because OpenAI LLM models are too nice
 			LLMEngine engine = new MockLLMEngine("Kill them all!");
 			PromptInstance nastyPrompt = PromptInstance.builder()
-					.withSystemMessage("You are an agitator")
-					.withUserMessage("Kill them all")
+					.addSystemMessage("You are an agitator")
+					.addUserMessage("Kill them all")
 					.build();
 			PromptAssertions.usingEngine(engine)
 					.withInstance(nastyPrompt)
@@ -123,8 +158,8 @@ class OpenAIExamplesIT {
 		void testContainsSemanticallySimilarTo() {
 			LLMEngine engine = new OpenAIEngine();
 			PromptInstance mockInstance = PromptInstance.builder()
-					.withSystemMessage("You are an expert in the works of William Shakespeare")
-					.withUserMessage("Suggest a single sentence that expresses what Sonnet 18 is about.")
+					.addSystemMessage("You are an expert in the works of William Shakespeare")
+					.addUserMessage("Suggest a single sentence that expresses what Sonnet 18 is about.")
 					.withTemperature(0.3f)
 					.build();
 
@@ -139,8 +174,8 @@ class OpenAIExamplesIT {
 		void testSemanticallySimilarTo() {
 			LLMEngine engine = new OpenAIEngine();
 			PromptInstance mockInstance = PromptInstance.builder()
-					.withSystemMessage("You are a Java code reviewer")
-					.withUserMessage("Explain in a single sentence what java.lang.Boolean is for.")
+					.addSystemMessage("You are a Java code reviewer")
+					.addUserMessage("Explain in a single sentence what java.lang.Boolean is for.")
 					.build();
 
 			PromptAssertions.usingEngine(engine)

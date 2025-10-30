@@ -2,10 +2,7 @@ package org.promptunit.providers.openai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -13,8 +10,6 @@ import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -89,15 +84,7 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 				optionsBuilder.withResponseFormat(responseFormat);
 			}
 
-			List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
-			if (promptInstance.systemMessage() != null && !promptInstance.systemMessage().isBlank()) {
-				messages.add(new SystemMessage(promptInstance.systemMessage()));
-			}
-			if (promptInstance.userMessage() != null) {
-				messages.add(new UserMessage(Objects.toString(promptInstance.userMessage(), "")));
-			}
-
-			Prompt prompt = new Prompt(messages, optionsBuilder.build());
+			Prompt prompt = new Prompt(promptInstance.conversation(), optionsBuilder.build());
 
 			long startNs = System.nanoTime();
 			ChatResponse response = chatModel.call(prompt);

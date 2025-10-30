@@ -1,10 +1,9 @@
 package org.promptunit.tools.command.dispatch;
 
-import org.promptunit.tools.catalog.ToolInvocation;
-import org.promptunit.tools.command.CommandPriority;
-
 import java.util.Map;
 import java.util.Optional;
+import org.promptunit.tools.catalog.ToolInvocation;
+import org.promptunit.tools.command.CommandPriority;
 
 public final class DefaultCommandMappingPolicy implements CommandMappingPolicy {
     private final Map<String, CommandPriority> priorityByTool;

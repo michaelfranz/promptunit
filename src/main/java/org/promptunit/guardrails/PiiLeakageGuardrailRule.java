@@ -1,6 +1,7 @@
 package org.promptunit.guardrails;
 
 import java.util.regex.Pattern;
+import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
 
 public class PiiLeakageGuardrailRule implements GuardrailRule {
@@ -16,8 +17,13 @@ public class PiiLeakageGuardrailRule implements GuardrailRule {
 	}
 
 	@Override
-	public GuardrailResult evaluate(PromptResult result) {
-		return delegate.evaluate(result);
+	public GuardrailResult evaluatePromptInstance(PromptInstance promptInstance) {
+		return delegate.evaluatePromptInstance(promptInstance);
+	}
+
+	@Override
+	public GuardrailResult evaluatePromptResult(PromptResult result) {
+		return delegate.evaluatePromptResult(result);
 	}
 
 	@Override

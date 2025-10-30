@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
+import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
 
 public class DisallowedRegexGuardrailRule implements GuardrailRule {
@@ -32,10 +34,19 @@ public class DisallowedRegexGuardrailRule implements GuardrailRule {
 	}
 
 	@Override
-	public GuardrailResult evaluate(PromptResult result) {
+	public GuardrailResult evaluatePromptInstance(PromptInstance promptInstance) {
+		return getGuardrailResult(promptInstance.conversaionAsString());
+	}
+
+	@Override
+	public GuardrailResult evaluatePromptResult(PromptResult promptResult) {
+		return getGuardrailResult(promptResult.rawOutput());
+	}
+
+	@NotNull
+	private GuardrailResult getGuardrailResult(String text) {
 		if (disallowedRegexes == null || disallowedRegexes.length == 0)
 			throw new IllegalStateException("No regexes specified.");
-		String text = result.rawOutput();
 		List<String> violations = new ArrayList<>();
 		for (String regex : disallowedRegexes) {
 			Matcher matcher = Pattern.compile(regex).matcher(text);

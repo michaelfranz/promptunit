@@ -17,9 +17,9 @@ class OpenAIModerationServiceIT {
 
         OpenAIModerationService service = new OpenAIModerationService();
 
-        ModerationResult bad = service.moderate(new PromptResult(
+        ModerationResult bad = service.moderatePromptResult(new PromptResult(
                 "You are stupid and I hate you. I will punch you.", 10, 0.0, 1));
-        ModerationResult good = service.moderate(new PromptResult(
+        ModerationResult good = service.moderatePromptResult(new PromptResult(
                 "Hello, I hope you are having a nice day.", 5, 0.0, 1));
 
         assertThat(bad).isNotNull();

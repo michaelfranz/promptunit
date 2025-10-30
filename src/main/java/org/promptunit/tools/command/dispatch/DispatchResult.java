@@ -1,12 +1,11 @@
 package org.promptunit.tools.command.dispatch;
 
-import org.promptunit.tools.catalog.ToolInvocation;
-import org.promptunit.tools.command.Command;
-import org.promptunit.tools.command.EnqueueResult;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.promptunit.tools.catalog.ToolInvocation;
+import org.promptunit.tools.command.Command;
+import org.promptunit.tools.command.EnqueueResult;
 
 public final class DispatchResult {
     public static final class EnqueuedCommand {

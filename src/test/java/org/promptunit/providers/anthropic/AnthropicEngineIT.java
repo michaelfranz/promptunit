@@ -20,8 +20,8 @@ class AnthropicEngineIT {
 
 		AnthropicEngine engine = new AnthropicEngine("gpt-3.5-turbo");
 		PromptInstance instance = PromptInstance.builder()
-				.withSystemMessage("You are a helpful assistant.")
-				.withUserMessage("Say hello.")
+				.addSystemMessage("You are a helpful assistant.")
+				.addUserMessage("Say hello.")
 				.withModel("gpt-3.5-turbo")
 				.withProvider("anthropic")
 				.build();
@@ -46,8 +46,8 @@ class AnthropicEngineIT {
 
 		AnthropicEngine engine = new AnthropicEngine("gpt-3.5-turbo");
 		PromptInstance instance = PromptInstance.builder()
-				.withSystemMessage("You are a concise assistant.")
-				.withUserMessage("What is 2 + 2?")
+				.addSystemMessage("You are a concise assistant.")
+				.addUserMessage("What is 2 + 2?")
 				.withModel("gpt-3.5-turbo")
 				.withProvider("anthropic")
 				.build();
@@ -70,8 +70,8 @@ class AnthropicEngineIT {
 	void throwsExceptionWhenApiKeyMissing() {
 		AnthropicEngine engine = new AnthropicEngine("gpt-3.5-turbo");
 		PromptInstance instance = PromptInstance.builder()
-				.withSystemMessage("You are a helpful assistant.")
-				.withUserMessage("Say hello.")
+				.addSystemMessage("You are a helpful assistant.")
+				.addUserMessage("Say hello.")
 				.withModel("gpt-3.5-turbo")
 				.withProvider("anthropic")
 				.build();
@@ -90,8 +90,8 @@ class AnthropicEngineIT {
 
 		AnthropicEngine engine = new AnthropicEngine("gpt-3.5-turbo");
 		PromptInstance instance = PromptInstance.builder()
-				.withSystemMessage("You are a helpful assistant.")
-				.withUserMessage("Write a very long essay about the history of computer science.")
+				.addSystemMessage("You are a helpful assistant.")
+				.addUserMessage("Write a very long essay about the history of computer science.")
 				.withModel("gpt-3.5-turbo")
 				.withProvider("anthropic")
 				.build();

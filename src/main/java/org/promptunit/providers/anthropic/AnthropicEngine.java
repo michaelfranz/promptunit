@@ -1,8 +1,5 @@
 package org.promptunit.providers.anthropic;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -13,9 +10,6 @@ import org.promptunit.core.PromptResult;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 
@@ -74,15 +68,7 @@ public class AnthropicEngine implements LLMEngine, LLMEngineInfo {
 				optionsBuilder.withMaxTokens(promptInstance.maxTokens());
 			}
 
-			List<Message> messages = new ArrayList<>();
-			if (promptInstance.systemMessage() != null && !promptInstance.systemMessage().isBlank()) {
-				messages.add(new SystemMessage(promptInstance.systemMessage()));
-			}
-			if (promptInstance.userMessage() != null) {
-				messages.add(new UserMessage(Objects.toString(promptInstance.userMessage(), "")));
-			}
-
-			Prompt prompt = new Prompt(messages, optionsBuilder.build());
+			Prompt prompt = new Prompt(promptInstance.conversation(), optionsBuilder.build());
 
 			long startNs = System.nanoTime();
 			ChatResponse response = chatModel.call(prompt);

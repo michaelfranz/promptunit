@@ -1,10 +1,13 @@
 package org.promptunit.guardrails;
 
+import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
 
 public interface GuardrailRule {
 
 	String getName();
 
-	GuardrailResult evaluate(PromptResult result);
+	GuardrailResult evaluatePromptInstance(PromptInstance promptInstance);
+
+	GuardrailResult evaluatePromptResult(PromptResult result);
 }

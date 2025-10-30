@@ -19,21 +19,25 @@ import org.promptunit.embedding.EmbeddingModel;
 import org.promptunit.guardrails.GuardrailResult;
 import org.promptunit.guardrails.GuardrailRule;
 
-public class PromptAssert {
+public class PromptResultAssert {
 
 	private final PromptResult result;
 	private JsonNode readTree;
 	private EmbeddingModel embeddingModel;
 
-	PromptAssert(PromptResult result) {
+	PromptResultAssert(PromptResult result) {
 		this.result = result;
 	}
 
-	public PromptAssert containsValidJson() {
+	public PromptResultAssert containsValidJson() {
 		JsonNode parsed = tryParse(result.rawOutput());
 		if (parsed == null) {
 			String extracted = JsonExtractors.extract(result.rawOutput());
-			if (extracted != null) parsed = tryParse(extracted);
+			if (extracted != null && !extracted.isBlank()) {
+				parsed = tryParse(extracted);
+			} else {
+				throw new AssertionError("Expected raw output to contain valid JSON content");
+			}
 		}
 		if (parsed == null) {
 			throw new AssertionError("Expected raw output to contain valid JSON content");
@@ -42,7 +46,7 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert conformsToSchema() {
+	public PromptResultAssert conformsToSchema() {
 		LLMEngineInfo engineInfo = result.engineInfo();
 		if (engineInfo == null)
 			throw new IllegalStateException("Engine info not available on PromptResult; cannot infer schema capability");
@@ -118,7 +122,7 @@ public class PromptAssert {
 		}
 	}
 
-	public PromptAssert jsonPathExists(String path) {
+	public PromptResultAssert jsonPathExists(String path) {
 		try {
 			JsonPath.parse(result.rawOutput()).read(path);
 		} catch (PathNotFoundException e) {
@@ -127,7 +131,7 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert conformsToSchema(String schema) {
+	public PromptResultAssert conformsToSchema(String schema) {
 		JsonNode schemaNode;
 		try {
 			ObjectMapper mapper = new ObjectMapper();
@@ -148,43 +152,43 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert contains(String substring) {
+	public PromptResultAssert contains(String substring) {
 		if (!result.rawOutput().contains(substring))
 			throw new AssertionError("Expected raw output to contain " + substring);
 		return this;
 	}
 
-	public PromptAssert containsCaseInsensitive(String substring) {
+	public PromptResultAssert containsCaseInsensitive(String substring) {
 		if (!result.rawOutput().toLowerCase().contains(substring.toLowerCase()))
 			throw new AssertionError("Expected raw output to contain " + substring);
 		return this;
 	}
 
 
-	public PromptAssert latencyBelow(long millis) {
+	public PromptResultAssert latencyBelow(long millis) {
 		if (result.latencyMs() > millis)
 			throw new AssertionError("Expected latency < " + millis + "ms but got " + result.latencyMs());
 		return this;
 	}
 
-	public PromptAssert tokenUsageBelow(int tokens) {
+	public PromptResultAssert tokenUsageBelow(int tokens) {
 		if (result.tokenUsage() > tokens)
 			throw new AssertionError("Expected token usage < " + tokens + " but got " + result.tokenUsage());
 		return this;
 	}
 
-	public PromptAssert costBelow(double amount) {
+	public PromptResultAssert costBelow(double amount) {
 		if (result.cost() > amount)
 			throw new AssertionError("Expected cost usage < " + amount + " but got " + result.cost());
 		return this;
 	}
 
-	public PromptAssert withEmbeddingModel(EmbeddingModel embeddingModel) {
+	public PromptResultAssert withEmbeddingModel(EmbeddingModel embeddingModel) {
 		this.embeddingModel = embeddingModel;
 		return this;
 	}
 
-	public PromptAssert semanticallySimilarTo(String similar, float threshold) {
+	public PromptResultAssert semanticallySimilarTo(String similar, float threshold) {
 		if (embeddingModel == null) throw new IllegalStateException("Embedding model not set");
 		double similarityScore = embeddingModel.similarity(result.rawOutput(), similar);
 		if (similarityScore < threshold)
@@ -193,7 +197,7 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert containsSemanticallySimilarTo(String similar, float threshold) {
+	public PromptResultAssert containsSemanticallySimilarTo(String similar, float threshold) {
 		if (embeddingModel == null) throw new IllegalStateException("Embedding model not set");
 		StringTokenizer tokenizer = new StringTokenizer(result.rawOutput());
 		double maxSimilarity = 0;
@@ -208,16 +212,16 @@ public class PromptAssert {
 		return this;
 	}
 
-	public PromptAssert conformsToGuardrail(GuardrailRule rule) {
-		GuardrailResult guardrailResult = rule.evaluate(result);
+	public PromptResultAssert conformsToGuardrail(GuardrailRule rule) {
+		GuardrailResult guardrailResult = rule.evaluatePromptResult(result);
 		if (!guardrailResult.passed())
 			throw new AssertionError("Expected raw output to conform to guardrail %s: %s"
 					.formatted(rule.getName(), guardrailResult.failReason()));
 		return this;
 	}
 
-	public PromptAssert violatesToGuardrail(GuardrailRule rule) {
-		GuardrailResult guardrailResult = rule.evaluate(result);
+	public PromptResultAssert violatesToGuardrail(GuardrailRule rule) {
+		GuardrailResult guardrailResult = rule.evaluatePromptResult(result);
 		if (guardrailResult.passed())
 			throw new AssertionError("Expected raw output to violate guardrail %s"
 					.formatted(rule.getName()));
