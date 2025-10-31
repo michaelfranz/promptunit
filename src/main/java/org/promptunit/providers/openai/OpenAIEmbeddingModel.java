@@ -20,12 +20,12 @@ public class OpenAIEmbeddingModel implements EmbeddingModel {
 
 	public OpenAIEmbeddingModel(String model) {
 		String apiKey = ApiKeyAccess.getApiKey(API_KEY);
-		OpenAiApi api = new OpenAiApi(apiKey);
+		OpenAiApi api = OpenAiApi.builder().apiKey(apiKey).build();
 		org.springframework.ai.openai.OpenAiEmbeddingModel embeddingModel =
 				new org.springframework.ai.openai.OpenAiEmbeddingModel(
 						api,
 						MetadataMode.ALL,
-						OpenAiEmbeddingOptions.builder().withModel(model).build()
+						OpenAiEmbeddingOptions.builder().model(model).build()
 				);
 		this.delegate = new SpringAIEmbeddingAdapter(embeddingModel);
 	}

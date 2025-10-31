@@ -1,9 +1,5 @@
 package org.promptunit.providers.llama;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import org.promptunit.LLMEngine;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
@@ -16,6 +12,11 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
 import org.springframework.ai.ollama.api.OllamaOptions;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class OllamaEngine implements LLMEngine {
 
@@ -51,14 +52,14 @@ public class OllamaEngine implements LLMEngine {
 
 		try {
 			OllamaOptions ollamaOptions = OllamaOptions.builder()
-					.withTemperature(promptInstance.temperature())
-					.withTopP(promptInstance.topP())
-					// .withMaxTokens() Not supported by LLAMA
+					.temperature(promptInstance.temperature())
+					.topP(promptInstance.topP())
+					// .maxTokens() Not supported by LLAMA
 					.build();
 
 
-			OllamaApi ollamaApi = new OllamaApi();
-			OllamaChatModel chatModel = new OllamaChatModel(ollamaApi, ollamaOptions);
+			OllamaApi ollamaApi = OllamaApi.builder().build();
+			OllamaChatModel chatModel = OllamaChatModel.builder().ollamaApi(ollamaApi).defaultOptions(ollamaOptions).build();
 
 			List<Message> messages = new ArrayList<>();
 			if (promptInstance.systemMessage() != null && !promptInstance.systemMessage().isBlank()) {
@@ -76,7 +77,7 @@ public class OllamaEngine implements LLMEngine {
 
 			String output;
 			try {
-				output = response.getResult().getOutput().getContent();
+				output = response.getResult().getOutput().getText();
 			} catch (Exception ignored) {
 				output = "";
 			}
