@@ -30,6 +30,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-openai")
     implementation("org.springframework.ai:spring-ai-anthropic")
     implementation("org.springframework.ai:spring-ai-ollama")
+    implementation("org.springframework.ai:spring-ai-model")
     // api(project(":modules:template-parser"))
 
     // Jackson - let Spring AI BOM manage versions through Spring Framework BOM
