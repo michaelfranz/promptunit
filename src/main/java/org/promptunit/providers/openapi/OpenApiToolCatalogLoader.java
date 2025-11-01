@@ -1,4 +1,4 @@
-package org.promptunit.tools.catalog.loaders.openapi;
+package org.promptunit.providers.openapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +44,7 @@ public final class OpenApiToolCatalogLoader implements ToolCatalogLoader {
 					String name = text(op, "operationId");
 					if (name == null) continue;
 					String description = text(op, "description");
-					JsonNode parametersSchema = extractParametersSchema(op);
+					JsonNode parametersSchema = extractParametersSchema(root, op);
 					Map<String, Object> risk = extensions(op, "x-risk-");
 					Map<String, Object> guardrails = asMap(op.get("x-guardrails"));
 					specs.add(new ToolSpec(name, description, parametersSchema, risk, guardrails));
@@ -66,9 +66,9 @@ public final class OpenApiToolCatalogLoader implements ToolCatalogLoader {
 		return v == null || v.isNull() ? null : v.asText();
 	}
 
-	private static Map<String, Object> asMap(JsonNode node) throws IOException {
+	private static Map<String, Object> asMap(JsonNode node) {
 		if (node == null || node.isNull()) return null;
-		ObjectMapper mapper = node.isTextual() ? JSON : JSON;
+		ObjectMapper mapper = JSON;
 		return mapper.convertValue(node, mapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
 	}
 
@@ -84,7 +84,7 @@ public final class OpenApiToolCatalogLoader implements ToolCatalogLoader {
 		return out.isEmpty() ? null : out;
 	}
 
-	private static JsonNode extractParametersSchema(JsonNode op) {
+	private static JsonNode extractParametersSchema(JsonNode root, JsonNode op) {
 		// Minimal: prefer requestBody schema; else build from parameters into an object
 		JsonNode requestBody = op.get("requestBody");
 		if (requestBody != null) {
@@ -94,7 +94,10 @@ public final class OpenApiToolCatalogLoader implements ToolCatalogLoader {
 				while (types.hasNext()) {
 					JsonNode media = content.get(types.next());
 					JsonNode schema = media.get("schema");
-					if (schema != null) return schema;
+					if (schema != null) {
+						JsonNode resolved = resolveSchemaRef(root, schema);
+						return resolved != null ? resolved : schema;
+					}
 				}
 			}
 		}
@@ -114,15 +117,39 @@ public final class OpenApiToolCatalogLoader implements ToolCatalogLoader {
 				}
 			}
 		}
-		Map<String, Object> root = new HashMap<>();
-		root.put("type", "object");
+		Map<String, Object> out = new HashMap<>();
+		out.put("type", "object");
 		Map<String, Object> properties = new HashMap<>();
 		for (Map.Entry<String, JsonNode> e : props.entrySet()) {
 			properties.put(e.getKey(), m.convertValue(e.getValue(), Map.class));
 		}
-		root.put("properties", properties);
-		if (!required.isEmpty()) root.put("required", required);
-		root.put("additionalProperties", false);
-		return m.valueToTree(root);
+		out.put("properties", properties);
+		if (!required.isEmpty()) out.put("required", required);
+		out.put("additionalProperties", false);
+		return m.valueToTree(out);
+	}
+
+	private static JsonNode resolveSchemaRef(JsonNode root, JsonNode schema) {
+		if (schema == null) return null;
+		JsonNode refNode = schema.get("$ref");
+		if (refNode == null || refNode.isNull()) return schema;
+		String ref = refNode.asText();
+		if (ref == null) return schema;
+		JsonNode target = resolveRef(root, ref);
+		int guard = 8;
+		while (target != null && target.has("$ref") && guard-- > 0) {
+			target = resolveRef(root, target.get("$ref").asText());
+		}
+		return target != null ? target : schema;
+	}
+
+	private static JsonNode resolveRef(JsonNode root, String ref) {
+		if (ref == null) return null;
+		// Only internal references
+		if (ref.startsWith("#")) {
+			String pointer = ref.substring(1);
+			return root.at(pointer);
+		}
+		return null;
 	}
 }

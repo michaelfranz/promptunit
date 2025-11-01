@@ -20,8 +20,8 @@ class PromptInstanceTest {
                     .addSystemMessage("You are a helpful assistant")
                     .withModel("gpt-4o")
                     .withProvider("openai")
-                    .withTemperature(0.2f)
-                    .withTopP(0.9f)
+                    .withTemperature(0.2)
+                    .withTopP(0.9)
                     .withMaxTokens(256)
                     .build();
 
@@ -29,8 +29,8 @@ class PromptInstanceTest {
             assertThat(pi.conversation().getFirst()).isInstanceOf(SystemMessage.class);
             assertThat(pi.model()).isEqualTo("gpt-4o");
             assertThat(pi.provider()).isEqualTo("openai");
-            assertThat(pi.temperature()).isEqualTo(0.2f);
-            assertThat(pi.topP()).isEqualTo(0.9f);
+            assertThat(pi.temperature()).isEqualTo(0.2);
+            assertThat(pi.topP()).isEqualTo(0.9);
             assertThat(pi.maxTokens()).isEqualTo(256);
             assertThat(pi.outputSchema()).isEmpty();
         }
@@ -160,16 +160,16 @@ class PromptInstanceTest {
                 .addAssistantMessage("A")
                 .withModel("m")
                 .withProvider("p")
-                .withTemperature(0.5f)
-                .withTopP(0.7f)
+                .withTemperature(0.5)
+                .withTopP(0.7)
                 .withMaxTokens(1024)
                 .withOutputSchema(schema)
                 .build();
 
         assertThat(pi.model()).isEqualTo("m");
         assertThat(pi.provider()).isEqualTo("p");
-        assertThat(pi.temperature()).isEqualTo(0.5f);
-        assertThat(pi.topP()).isEqualTo(0.7f);
+        assertThat(pi.temperature()).isEqualTo(0.5);
+        assertThat(pi.topP()).isEqualTo(0.7);
         assertThat(pi.maxTokens()).isEqualTo(1024);
         assertThat(pi.outputSchema()).isEqualTo(Optional.of(schema));
         assertThat(pi.systemMessagesAsString()).isEqualTo("S");

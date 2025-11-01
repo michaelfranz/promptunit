@@ -1,4 +1,4 @@
-package org.promptunit.tools.catalog.loaders.openai;
+package org.promptunit.providers.openai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,7 +49,7 @@ public final class OpenAiToolsJsonLoader implements ToolCatalogLoader {
 		return v == null || v.isNull() ? null : v.asText();
 	}
 
-	private static Map<String, Object> asMap(JsonNode node) throws IOException {
+	private static Map<String, Object> asMap(JsonNode node) {
 		if (node == null || node.isNull()) return null;
 		return MAPPER.convertValue(node, MAPPER.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
 	}

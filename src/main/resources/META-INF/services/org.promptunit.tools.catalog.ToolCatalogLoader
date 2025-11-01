@@ -1,2 +1,2 @@
-org.promptunit.tools.catalog.loaders.openai.OpenAiToolsJsonLoader
-org.promptunit.tools.catalog.loaders.openapi.OpenApiToolCatalogLoader
+org.promptunit.providers.openai.OpenAiToolsJsonLoader
+org.promptunit.providers.openapi.OpenApiToolCatalogLoader

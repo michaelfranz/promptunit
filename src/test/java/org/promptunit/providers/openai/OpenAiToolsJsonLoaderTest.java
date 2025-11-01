@@ -1,4 +1,4 @@
-package org.promptunit.tools.catalog.loaders.openai;
+package org.promptunit.providers.openai;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import java.io.InputStream;

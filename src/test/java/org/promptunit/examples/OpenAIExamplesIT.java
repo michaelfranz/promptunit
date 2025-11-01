@@ -157,7 +157,7 @@ class OpenAIExamplesIT {
 			PromptInstance mockInstance = PromptInstance.builder()
 					.addSystemMessage("You are an expert in the works of William Shakespeare")
 					.addUserMessage("Suggest a single sentence that expresses what Sonnet 18 is about.")
-					.withTemperature(0.3f)
+					.withTemperature(0.3)
 					.build();
 
 			PromptAssertions.usingEngine(engine)

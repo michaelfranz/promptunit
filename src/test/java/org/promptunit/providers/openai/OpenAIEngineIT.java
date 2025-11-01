@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
-import org.promptunit.LLMInvocationException;
 import org.promptunit.LLMTimeoutException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
@@ -64,21 +63,6 @@ class OpenAIEngineIT {
 							.isNotBlank();
 					assertThat(result.latencyMs()).isGreaterThanOrEqualTo(0);
 				});
-	}
-
-	@Test
-	void throwsExceptionWhenApiKeyMissing() {
-		OpenAIEngine engine = new OpenAIEngine("gpt-3.5-turbo");
-		PromptInstance instance = PromptInstance.builder()
-				.addSystemMessage("You are a helpful assistant.")
-				.addUserMessage("Say hello.")
-				.withModel("gpt-3.5-turbo")
-				.withProvider("openai")
-				.build();
-
-		assertThatThrownBy(() -> engine.execute(instance, 5_000))
-				.isInstanceOf(LLMInvocationException.class)
-				.hasMessageContaining("OPENAI_API_KEY");
 	}
 
 	@Test

@@ -2,10 +2,7 @@ package org.promptunit.providers.openai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -13,14 +10,12 @@ import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.ai.openai.api.OpenAiApi.ChatCompletionRequest.ResponseFormat;
+import org.springframework.ai.openai.api.ResponseFormat;
 
 public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 
@@ -64,7 +59,6 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 
 		try {
 			OpenAiApi openAiApi = OpenAiApi.builder().apiKey(apiKey).build();
-			;
 			OpenAiChatModel chatModel = OpenAiChatModel.builder().openAiApi(openAiApi).build();
 
 			OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder().model(effectiveModel);

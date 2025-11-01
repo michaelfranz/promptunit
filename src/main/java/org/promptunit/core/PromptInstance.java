@@ -27,31 +27,31 @@ public record PromptInstance(
 	public String systemMessagesAsString() {
 		return conversation.stream()
 				.filter(m -> m instanceof SystemMessage)
-				.map(Message::getContent)
+				.map(Message::getText)
 				.collect(Collectors.joining("\n"));
 	}
 
 	public String userMessagesAsString() {
 		return conversation.stream()
 				.filter(m -> m instanceof UserMessage)
-				.map(Message::getContent)
+				.map(Message::getText)
 				.collect(Collectors.joining("\n"));
 	}
 
 	public String assistantMessagesAsString() {
 		return conversation.stream()
 				.filter(m -> m instanceof AssistantMessage)
-				.map(Message::getContent)
+				.map(Message::getText)
 				.collect(Collectors.joining("\n"));
 	}
 
 	public String conversaionAsString() {
 		return conversation.stream()
 				.map(m -> switch (m) {
-					case SystemMessage sm -> "system: " + sm.getContent();
-					case UserMessage um -> "user: " + um.getContent();
-					case AssistantMessage am -> "assistant: " + am.getContent();
-					default -> m.getContent();
+					case SystemMessage sm -> "system: " + sm.getText();
+					case UserMessage um -> "user: " + um.getText();
+					case AssistantMessage am -> "assistant: " + am.getText();
+					default -> m.getText();
 				})
 				.collect(Collectors.joining("\n\n"));
 	}
@@ -111,8 +111,8 @@ public record PromptInstance(
 		}
 
 		public PromptInstance build() {
-			boolean hasSystem = conversation.stream().anyMatch(m -> m instanceof SystemMessage && m.getContent() != null && !m.getContent().isBlank());
-			boolean hasUser = conversation.stream().anyMatch(m -> m instanceof UserMessage && m.getContent() != null && !m.getContent().isBlank());
+			boolean hasSystem = conversation.stream().anyMatch(m -> m instanceof SystemMessage && !m.getText().isBlank());
+			boolean hasUser = conversation.stream().anyMatch(m -> m instanceof UserMessage && !m.getText().isBlank());
 			if (!hasSystem && !hasUser) {
 				throw new IllegalStateException("PromptInstance requires at least a non-blank systemMessage or userMessage");
 			}
