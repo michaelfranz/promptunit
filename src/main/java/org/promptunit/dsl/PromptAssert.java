@@ -8,16 +8,17 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 import org.promptunit.LLMEngineInfo;
 import org.promptunit.core.OutputSchema;
 import org.promptunit.core.PromptResult;
 import org.promptunit.embedding.EmbeddingModel;
 import org.promptunit.guardrails.GuardrailResult;
 import org.promptunit.guardrails.GuardrailRule;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 public class PromptAssert {
 
@@ -257,6 +258,12 @@ public class PromptAssert {
 		}
 		this.readTree = parsed;
 		return this.readTree;
+	}
+
+	public <T> T toResult(Class<T> targetType) {
+		JsonNode jsonNode = jsonNode();
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.convertValue(jsonNode, targetType);
 	}
 }
 

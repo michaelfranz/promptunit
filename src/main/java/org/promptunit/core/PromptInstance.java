@@ -7,8 +7,8 @@ public record PromptInstance(
 		String userMessage,
 		String model,
 		String provider,
-		Float temperature,
-		Float topP,
+		Double temperature,
+		Double topP,
 		Integer maxTokens,
 		Optional<OutputSchema> outputSchema
 ) {
@@ -20,8 +20,8 @@ public record PromptInstance(
 		private String userMessage;
 		private String model;
 		private String provider;
-		private Float temperature;
-		private Float topP;
+		private Double temperature;
+		private Double topP;
 		private Integer maxTokens;
 		private Optional<OutputSchema> outputSchema = Optional.empty();
 
@@ -45,12 +45,12 @@ public record PromptInstance(
 			return this;
 		}
 
-		public Builder withTemperature(Float temperature) {
+		public Builder withTemperature(Double temperature) {
 			this.temperature = temperature;
 			return this;
 		}
 
-		public Builder withTopP(Float topP) {
+		public Builder withTopP(Double topP) {
 			this.topP = topP;
 			return this;
 		}

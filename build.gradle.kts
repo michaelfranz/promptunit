@@ -23,13 +23,14 @@ repositories {
 
 dependencies {
     // Spring Framework BOM for dependency management (Spring AI transitively depends on this)
-    implementation(platform("org.springframework:spring-framework-bom:6.1.0"))
+    implementation(platform("org.springframework:spring-framework-bom:6.2.12"))
     
     // Spring AI - align with APIs used in source (ResponseFormat, etc.)
-    implementation(platform("org.springframework.ai:spring-ai-bom:1.0.0-M2"))
+    implementation(platform("org.springframework.ai:spring-ai-bom:1.0.3"))
     implementation("org.springframework.ai:spring-ai-openai")
     implementation("org.springframework.ai:spring-ai-anthropic")
     implementation("org.springframework.ai:spring-ai-ollama")
+    implementation("org.springframework.ai:spring-ai-model")
     // api(project(":modules:template-parser"))
 
     // Jackson - let Spring AI BOM manage versions through Spring Framework BOM
@@ -38,10 +39,6 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.1")
     implementation("com.jayway.jsonpath:json-path:2.9.0")
     implementation("org.slf4j:slf4j-api:2.0.13")
-
-    // Lombok for all modules
-    implementation("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.11.0"))
@@ -58,7 +55,7 @@ tasks.withType<Test> {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    // Enable annotation processing for Lombok and other annotation processors
+    // Enable annotation processing for annotation processors
     options.compilerArgs.addAll(listOf("-proc:full", "-parameters"))
 }
 
