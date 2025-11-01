@@ -18,9 +18,6 @@ import org.promptunit.providers.openai.OpenAIModerationService;
 class OpenAIExamplesIT {
 
 	@Test
-	void testModerationGuardrail() {}
-
-	@Test
 	void testConformsToSchemaForOpenAI() {
 		LLMEngine engine = new OpenAIEngine();
 		PromptInstance mockInstance = PromptInstance.builder()

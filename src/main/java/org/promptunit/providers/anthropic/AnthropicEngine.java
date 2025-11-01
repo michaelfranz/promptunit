@@ -1,5 +1,8 @@
 package org.promptunit.providers.anthropic;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -10,6 +13,9 @@ import org.promptunit.core.PromptResult;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 
@@ -54,18 +60,18 @@ public class AnthropicEngine implements LLMEngine, LLMEngineInfo {
 		final String effectiveModel = promptInstance.model() != null && !promptInstance.model().isBlank() ? promptInstance.model() : this.model;
 
 		try {
-			AnthropicApi anthropicApi = new AnthropicApi(apiKey);
-			AnthropicChatModel chatModel = new AnthropicChatModel(anthropicApi);
+			AnthropicApi anthropicApi = AnthropicApi.builder().apiKey(apiKey).build();
+			AnthropicChatModel chatModel = AnthropicChatModel.builder().anthropicApi(anthropicApi).build();
 
-			AnthropicChatOptions.Builder optionsBuilder = AnthropicChatOptions.builder().withModel(effectiveModel);
+			AnthropicChatOptions.Builder optionsBuilder = AnthropicChatOptions.builder().model(effectiveModel);
 			if (promptInstance.temperature() != null) {
-				optionsBuilder.withTemperature(promptInstance.temperature());
+				optionsBuilder.temperature(promptInstance.temperature());
 			}
 			if (promptInstance.topP() != null) {
-				optionsBuilder.withTopP(promptInstance.topP());
+				optionsBuilder.topP(promptInstance.topP());
 			}
 			if (promptInstance.maxTokens() != null) {
-				optionsBuilder.withMaxTokens(promptInstance.maxTokens());
+				optionsBuilder.maxTokens(promptInstance.maxTokens());
 			}
 
 			Prompt prompt = new Prompt(promptInstance.conversation(), optionsBuilder.build());
@@ -76,7 +82,7 @@ public class AnthropicEngine implements LLMEngine, LLMEngineInfo {
 
 			String output;
 			try {
-				output = response.getResult().getOutput().getContent();
+				output = response.getResult().getOutput().getText();
 			} catch (Exception ignored) {
 				output = "";
 			}

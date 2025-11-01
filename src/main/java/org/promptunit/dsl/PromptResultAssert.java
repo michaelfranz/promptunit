@@ -262,6 +262,12 @@ public class PromptResultAssert {
 		this.readTree = parsed;
 		return this.readTree;
 	}
+
+	public <T> T toResult(Class<T> targetType) {
+		JsonNode jsonNode = jsonNode();
+		ObjectMapper mapper = new ObjectMapper();
+		return mapper.convertValue(jsonNode, targetType);
+	}
 }
 
 

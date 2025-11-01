@@ -2,7 +2,10 @@ package org.promptunit.providers.openai;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -10,6 +13,8 @@ import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -58,18 +63,19 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 		final String effectiveModel = promptInstance.model() != null && !promptInstance.model().isBlank() ? promptInstance.model() : this.model;
 
 		try {
-			OpenAiApi openAiApi = new OpenAiApi(apiKey);
-			OpenAiChatModel chatModel = new OpenAiChatModel(openAiApi);
+			OpenAiApi openAiApi = OpenAiApi.builder().apiKey(apiKey).build();
+			;
+			OpenAiChatModel chatModel = OpenAiChatModel.builder().openAiApi(openAiApi).build();
 
-			OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder().withModel(effectiveModel);
+			OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder().model(effectiveModel);
 			if (promptInstance.temperature() != null) {
-				optionsBuilder.withTemperature(promptInstance.temperature());
+				optionsBuilder.temperature(promptInstance.temperature());
 			}
 			if (promptInstance.topP() != null) {
-				optionsBuilder.withTopP(promptInstance.topP());
+				optionsBuilder.topP(promptInstance.topP());
 			}
 			if (promptInstance.maxTokens() != null) {
-				optionsBuilder.withMaxTokens(promptInstance.maxTokens());
+				optionsBuilder.maxTokens(promptInstance.maxTokens());
 			}
 
 			// Configure response format based on schema presence and model capability
@@ -79,9 +85,9 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 					responseFormat = buildOpenAIResponseFormat(promptInstance.outputSchema().get().jsonSchema());
 				} else {
 					// Fallback to simple JSON object mode for models without structured outputs support
-					responseFormat = new ResponseFormat(ResponseFormat.Type.JSON_OBJECT);
+					responseFormat = ResponseFormat.builder().type(ResponseFormat.Type.JSON_OBJECT).build();
 				}
-				optionsBuilder.withResponseFormat(responseFormat);
+				optionsBuilder.responseFormat(responseFormat);
 			}
 
 			Prompt prompt = new Prompt(promptInstance.conversation(), optionsBuilder.build());
@@ -92,7 +98,7 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 
 			String output;
 			try {
-				output = response.getResult().getOutput().getContent();
+				output = response.getResult().getOutput().getText();
 			} catch (Exception ignored) {
 				output = "";
 			}
@@ -118,7 +124,7 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 
 	private ResponseFormat buildOpenAIResponseFormat(String outputContract) {
 		if (outputContract == null || outputContract.trim().isEmpty()) {
-			return new ResponseFormat(ResponseFormat.Type.JSON_OBJECT);
+			return ResponseFormat.builder().type(ResponseFormat.Type.JSON_OBJECT).build();
 		}
 		try {
 			JsonNode schemaNode = objectMapper.readTree(outputContract);
@@ -127,15 +133,15 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 				// Pass the schema itself (not wrapped) so OpenAI sees the root type correctly
 				@SuppressWarnings("unchecked")
 				Map<String, Object> schemaMap = objectMapper.convertValue(schemaNode, Map.class);
-				return new ResponseFormat(
-						ResponseFormat.Type.JSON_SCHEMA,
-						new ResponseFormat.JsonSchema("OutputResponse", schemaMap, true)
-				);
+				return ResponseFormat.builder()
+						.type(ResponseFormat.Type.JSON_SCHEMA)
+						.jsonSchema(ResponseFormat.JsonSchema.builder().name("OutputResponse").schema(schemaMap).strict(true).build())
+						.build();
 			}
 			// Fallback if schema root is not an object schema
-			return new ResponseFormat(ResponseFormat.Type.JSON_OBJECT);
+			return ResponseFormat.builder().type(ResponseFormat.Type.JSON_OBJECT).build();
 		} catch (Exception e) {
-			return new ResponseFormat(ResponseFormat.Type.JSON_OBJECT);
+			return ResponseFormat.builder().type(ResponseFormat.Type.JSON_OBJECT).build();
 		}
 	}
 }
