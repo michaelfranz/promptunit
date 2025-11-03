@@ -76,7 +76,7 @@ public class OllamaEngine implements LLMEngine {
 			long latencyMs = TimeUnit.NANOSECONDS.toMillis(endNs - startNs);
 			int tokenUsage = PromptResult.UNKNOWN_TOKENS_USED;
 
-			return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage);
+            return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage);
 		} catch (LLMInvocationException e) {
 			throw e;
 		} catch (Exception e) {

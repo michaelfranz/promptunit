@@ -1,8 +1,6 @@
 package org.promptunit.providers.anthropic;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.concurrent.TimeUnit;
 import org.promptunit.ApiKeyAccess;
 import org.promptunit.LLMEngine;
@@ -10,12 +8,12 @@ import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
+import org.promptunit.providers.util.SpringAiToolCallMapper;
+import org.promptunit.tools.ToolCall;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
+import java.util.List;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 
@@ -80,7 +78,7 @@ public class AnthropicEngine implements LLMEngine, LLMEngineInfo {
 			ChatResponse response = chatModel.call(prompt);
 			long endNs = System.nanoTime();
 
-			String output;
+            String output;
 			try {
 				output = response.getResult().getOutput().getText();
 			} catch (Exception ignored) {
@@ -90,7 +88,10 @@ public class AnthropicEngine implements LLMEngine, LLMEngineInfo {
 			long latencyMs = TimeUnit.NANOSECONDS.toMillis(endNs - startNs);
 			int tokenUsage = PromptResult.UNKNOWN_TOKENS_USED;
 
-			return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage, promptInstance, this);
+            List<ToolCall> toolCalls = SpringAiToolCallMapper
+                    .fromAssistantMessage(response.getResult().getOutput(), new ObjectMapper());
+
+            return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage, promptInstance, this, toolCalls);
 		} catch (LLMInvocationException e) {
 			throw e;
 		} catch (Exception e) {

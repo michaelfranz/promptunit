@@ -1,5 +1,6 @@
 package org.promptunit;
 
+import java.util.List;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
 
@@ -41,7 +42,8 @@ public class MockLLMEngine implements LLMEngine, LLMEngineInfo {
 				0.0,
 				100,
 				instance,
-				this);
+				this,
+				List.of());
 	}
 
 }

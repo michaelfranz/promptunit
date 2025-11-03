@@ -8,6 +8,8 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -18,6 +20,9 @@ import org.promptunit.core.PromptResult;
 import org.promptunit.embedding.EmbeddingModel;
 import org.promptunit.guardrails.GuardrailResult;
 import org.promptunit.guardrails.GuardrailRule;
+import org.promptunit.tools.ToolCall;
+import org.promptunit.tools.ToolRef;
+
 
 public class PromptResultAssert {
 
@@ -267,6 +272,120 @@ public class PromptResultAssert {
 		JsonNode jsonNode = jsonNode();
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.convertValue(jsonNode, targetType);
+	}
+
+	// --- Tool call assertions ---
+	public ToolCallAssert hasToolCall(ToolRef toolRef) {
+		if (result.toolCalls() == null)
+			throw new AssertionError("No tool call metadata available on PromptResult; engine did not provide tool calls");
+		long count = result.toolCalls().stream().filter(tc -> toolRef.name().equals(tc.name())).count();
+		if (count != 1)
+			throw new AssertionError("Expected exactly one call to tool '" + toolRef.name() + "' but found " + count);
+		ToolCall call = result.toolCalls().stream().filter(tc -> toolRef.name().equals(tc.name())).findFirst().orElseThrow();
+		return new ToolCallAssert(call);
+	}
+
+	public PromptResultAssert hasToolCallsExactlyInAnyOrder(ToolRef... refs) {
+		if (result.toolCalls() == null)
+			throw new AssertionError("No tool call metadata available on PromptResult; engine did not provide tool calls");
+		List<String> expected = Arrays.stream(refs).map(ToolRef::name).sorted().toList();
+		List<String> actual = result.toolCalls().stream().map(ToolCall::name).sorted().toList();
+		if (!expected.equals(actual)) {
+			throw new AssertionError("Expected tool calls exactly (any order): " + expected + ", but got: " + actual);
+		}
+		return this;
+	}
+
+	public PromptResultAssert hasToolCallsExactlyInOrder(ToolRef... refs) {
+		if (result.toolCalls() == null)
+			throw new AssertionError("No tool call metadata available on PromptResult; engine did not provide tool calls");
+		List<String> expected = Arrays.stream(refs).map(ToolRef::name).toList();
+		List<String> actual = result.toolCalls().stream().map(ToolCall::name).toList();
+		if (!expected.equals(actual)) {
+			throw new AssertionError("Expected tool calls exactly in order: " + expected + ", but got: " + actual);
+		}
+		return this;
+	}
+
+    public final class ToolCallAssert {
+        private final ToolCall call;
+
+		ToolCallAssert(ToolCall call) {
+			this.call = call;
+		}
+
+		public PromptResultAssert withArgsDeepEqual(String json) {
+			JsonNode expected = parse(json);
+			if (!expected.equals(call.args()))
+				throw new AssertionError("Expected tool args to equal provided JSON, but they differ. expected=" + expected + ", actual=" + call.args());
+			return parent();
+		}
+
+		public PromptResultAssert withArgsSubset(String jsonSubset) {
+			JsonNode subset = parse(jsonSubset);
+			if (!deepContains(call.args(), subset))
+				throw new AssertionError("Expected tool args to contain subset " + subset + ", actual=" + call.args());
+			return parent();
+		}
+
+		public PromptResultAssert withArgsMatching(String jsonPath, Object expected) {
+			Object actual;
+			try {
+				actual = com.jayway.jsonpath.JsonPath.read(call.args().toString(), jsonPath);
+			} catch (Exception e) {
+				throw new AssertionError("Failed to read JSONPath '" + jsonPath + "' from tool args", e);
+			}
+			if (!java.util.Objects.equals(actual, expected))
+				throw new AssertionError("Expected JSONPath " + jsonPath + " == " + expected + ", but was " + actual);
+			return parent();
+		}
+
+		public PromptResultAssert withArgsSatisfying(java.util.function.Predicate<com.fasterxml.jackson.databind.JsonNode> predicate) {
+			boolean ok;
+			try {
+				ok = predicate.test(call.args());
+			} catch (Exception e) {
+				throw new AssertionError("Predicate threw while evaluating tool args", e);
+			}
+			if (!ok) throw new AssertionError("Args predicate did not hold for tool args: " + call.args());
+			return parent();
+		}
+
+		private JsonNode parse(String json) {
+			try {
+				return new ObjectMapper().readTree(json);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid JSON provided: " + e.getMessage(), e);
+			}
+		}
+
+		private boolean deepContains(JsonNode superset, JsonNode subset) {
+			if (subset == null) return true;
+			if (superset == null) return false;
+			if (subset.isObject()) {
+				if (!superset.isObject()) return false;
+				java.util.Iterator<String> names = subset.fieldNames();
+				while (names.hasNext()) {
+					String n = names.next();
+					JsonNode ev = subset.get(n);
+					JsonNode av = superset.get(n);
+					if (av == null) return false;
+					if (!deepContains(av, ev)) return false;
+				}
+				return true;
+			}
+			if (subset.isArray()) {
+				if (!superset.isArray()) return false;
+				if (subset.size() > superset.size()) return false;
+				for (int i = 0; i < subset.size(); i++) {
+					if (!deepContains(superset.get(i), subset.get(i))) return false;
+				}
+				return true;
+			}
+			return superset.equals(subset);
+		}
+
+        private PromptResultAssert parent() { return PromptResultAssert.this; }
 	}
 }
 

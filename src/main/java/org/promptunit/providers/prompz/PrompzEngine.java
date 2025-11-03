@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 import org.promptunit.LLMEngine;
 import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
@@ -62,13 +63,14 @@ public class PrompzEngine implements LLMEngine, LLMEngineInfo {
 			JsonNode resultNode = objectMapper.readTree(response.body());
 
 			// Convert JSON response to PromptResult
-			return new PromptResult(
+            return new PromptResult(
 					resultNode.get("rawOutput").asText(),
 					resultNode.get("latencyMs").asLong(),
 					resultNode.get("cost").asDouble(),
 					resultNode.get("tokenUsage").asInt(),
 					instance,
-					this
+                    this,
+                    List.of()
 			);
 
 		} catch (InterruptedException e) {

@@ -10,6 +10,7 @@ import org.promptunit.LLMEngineInfo;
 import org.promptunit.LLMInvocationException;
 import org.promptunit.core.PromptInstance;
 import org.promptunit.core.PromptResult;
+import java.util.List;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -90,7 +91,7 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 			ChatResponse response = chatModel.call(prompt);
 			long endNs = System.nanoTime();
 
-			String output;
+            String output;
 			try {
 				output = response.getResult().getOutput().getText();
 			} catch (Exception ignored) {
@@ -100,7 +101,11 @@ public class OpenAIEngine implements LLMEngine, LLMEngineInfo {
 			long latencyMs = TimeUnit.NANOSECONDS.toMillis(endNs - startNs);
 			int tokenUsage = PromptResult.UNKNOWN_TOKENS_USED;
 
-			return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage, promptInstance, this);
+            // Map tool calls if present via Spring AI models
+            List<org.promptunit.tools.ToolCall> toolCalls = org.promptunit.providers.util.SpringAiToolCallMapper
+                    .fromAssistantMessage(response.getResult().getOutput(), objectMapper);
+
+            return new PromptResult(output, latencyMs, PromptResult.UNKNOWN_COST, tokenUsage, promptInstance, this, toolCalls);
 		} catch (LLMInvocationException e) {
 			throw e;
 		} catch (Exception e) {
